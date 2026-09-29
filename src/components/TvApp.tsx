@@ -2,17 +2,9 @@
 
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import {
-  DEFAULT_ROOM_NO,
-  getBill,
-  getConfig,
-  getGuest,
-  getPromoVideo,
-  getRoom,
-  getServices,
-} from "@/lib/api";
+import { DEFAULT_ROOM_NO, getConfig, getGuest, getPromoVideo, getRoom, getServices } from "@/lib/api";
 import { startRemote } from "@/lib/remote";
-import type { AppConfig, BackgroundId, Bill, Guest, PromoVideo as PromoVideoData, Room, Services } from "@/lib/types";
+import type { AppConfig, BackgroundId, Guest, PromoVideo as PromoVideoData, Room, Services } from "@/lib/types";
 import { HomeScreen } from "@/components/HomeScreen";
 import { PromoVideo } from "@/components/PromoVideo";
 import { WelcomeScreen } from "@/components/WelcomeScreen";
@@ -29,19 +21,17 @@ interface TvData {
   guest: Guest | null;
   video: PromoVideoData;
   services: Services;
-  bill: Bill;
 }
 
 async function loadTvData(roomNo: string): Promise<TvData> {
-  const [config, room, guest, services, bill] = await Promise.all([
+  const [config, room, guest, services] = await Promise.all([
     getConfig(),
     getRoom(roomNo),
     getGuest(roomNo),
     getServices(),
-    getBill(roomNo),
   ]);
   const video = await getPromoVideo(guest?.promoVideoId);
-  return { config, room, guest, video, services, bill };
+  return { config, room, guest, video, services };
 }
 
 const isBackgroundId = (v: string | null, cfg: AppConfig): v is BackgroundId => v !== null && v in cfg.backgrounds;
@@ -64,7 +54,7 @@ export function TvApp() {
 
   if (!data) return <div className="size-full bg-ink" />;
 
-  const { config, room, guest, video, services, bill } = data;
+  const { config, room, guest, video, services } = data;
   const background = config.backgrounds[isBackgroundId(bgParam, config) ? bgParam : config.background];
   const goHome = () => setStage("home");
 
@@ -86,7 +76,6 @@ export function TvApp() {
           room={room}
           guest={guest}
           services={services}
-          bill={bill}
           background={background}
           timeZone={config.timeZone}
         />

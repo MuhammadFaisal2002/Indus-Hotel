@@ -3,18 +3,13 @@
 import { setFocus } from "@noriginmedia/norigin-spatial-navigation";
 import { useCallback, useEffect, useState } from "react";
 import { sendRequest } from "@/lib/api";
-import type { Bill, Department, Guest, PanelId, Room, Services } from "@/lib/types";
-import { FooterMenu, MENU, footerKey } from "@/components/FooterMenu";
+import type { Contact, Department, Guest, PanelId, Room, Services } from "@/lib/types";
+import { FooterMenu, footerKey, type MenuItem } from "@/components/FooterMenu";
 import { Backdrop } from "@/components/ui/Backdrop";
 import { Clock } from "@/components/ui/Clock";
 import { Logo, Ornament } from "@/components/ui/Logo";
 import { useToast } from "@/components/ui/Toast";
-import { BillingPanel } from "@/components/panels/BillingPanel";
-import { DiningPanel } from "@/components/panels/DiningPanel";
-import { FrontDeskPanel } from "@/components/panels/FrontDeskPanel";
-import { HousekeepingPanel } from "@/components/panels/HousekeepingPanel";
-import { RoomServicePanel } from "@/components/panels/RoomServicePanel";
-import { SpaPanel } from "@/components/panels/SpaPanel";
+import { ServicePanel } from "@/components/panels/ServicePanel";
 import { TvPanel } from "@/components/panels/TvPanel";
 import type { PanelProps } from "@/components/panels/types";
 
@@ -22,25 +17,19 @@ interface HomeScreenProps {
   room: Room;
   guest: Guest | null;
   services: Services;
-  bill: Bill;
   background: string;
   timeZone: string;
 }
 
-const CONFIRMATION: Record<Department, string> = {
-  "Room Service": "Request sent to Room Service",
-  Housekeeping: "Request sent to Housekeeping",
-  Dining: "Order sent to Lazzat Restaurant",
-  Spa: "Booking request sent to Beauty Parlor",
-  "Front Desk": "Request sent to Front Desk",
-};
-
-export function HomeScreen({ room, guest, services, bill, background, timeZone }: HomeScreenProps) {
+export function HomeScreen({ room, guest, services, background, timeZone }: HomeScreenProps) {
   const [open, setOpen] = useState<PanelId | null>(null);
   const toast = useToast();
 
+  const menu: MenuItem[] = [{ id: "tv", label: "TV" }, ...services.sections.map((s) => ({ id: s.id, label: s.label }))];
+  const section = services.sections.find((s) => s.id === open);
+
   useEffect(() => {
-    setFocus(footerKey(MENU[0].id));
+    setFocus(footerKey("tv"));
   }, []);
 
   const close = useCallback(() => {
@@ -50,15 +39,15 @@ export function HomeScreen({ room, guest, services, bill, background, timeZone }
     setOpen(null);
   }, [open]);
 
-  const onRequest = useCallback(
-    (department: Department, item: string, price?: number) => {
-      void sendRequest(room.roomNo, { department, item, price });
-      toast(`${CONFIRMATION[department]} · ${item}`);
+  const onCall = useCallback(
+    (department: Department, contact: Contact) => {
+      void sendRequest(room.roomNo, { department, item: "Call" });
+      toast(`Calling ${contact.name} · Ext. ${contact.ext}…`);
     },
     [room.roomNo, toast],
   );
 
-  const panelProps: PanelProps = { onClose: close, onRequest, notify: toast };
+  const panelProps: PanelProps = { onClose: close, onCall, notify: toast };
 
   return (
     <main className="animate-fade-in relative flex size-full flex-col">
@@ -100,15 +89,16 @@ export function HomeScreen({ room, guest, services, bill, background, timeZone }
 
         {open && <div className="animate-fade-in absolute inset-0 bg-ink/70" />}
         {open === "tv" && <TvPanel {...panelProps} channels={services.channels} />}
-        {open === "roomService" && <RoomServicePanel {...panelProps} items={services.roomService} />}
-        {open === "housekeeping" && <HousekeepingPanel {...panelProps} items={services.housekeeping} />}
-        {open === "dining" && <DiningPanel {...panelProps} dining={services.dining} />}
-        {open === "spa" && <SpaPanel {...panelProps} spa={services.spa} />}
-        {open === "frontDesk" && <FrontDeskPanel {...panelProps} frontDesk={services.frontDesk} />}
-        {open === "billing" && <BillingPanel {...panelProps} bill={bill} guest={guest} />}
+        {section && <ServicePanel key={section.id} {...panelProps} section={section} />}
       </div>
 
-      <FooterMenu room={room} active={open} onOpen={setOpen} />
+      <FooterMenu
+        items={menu}
+        room={room}
+        active={open}
+        onOpen={setOpen}
+        onCallReception={() => onCall("Reception", services.reception)}
+      />
     </main>
   );
 }

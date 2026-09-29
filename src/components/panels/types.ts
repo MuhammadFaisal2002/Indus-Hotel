@@ -1,9 +1,9 @@
-import type { Department } from "@/lib/types";
+import type { Contact, Department } from "@/lib/types";
 
 export interface PanelProps {
   onClose: () => void;
-  /** Send a request/order/booking and show the confirmation toast. */
-  onRequest: (department: Department, item: string, price?: number) => void;
+  /** Place a call to a department and show the confirmation toast. */
+  onCall: (department: Department, contact: Contact) => void;
   /** Show a toast without sending anything. */
   notify: (text: string) => void;
 }

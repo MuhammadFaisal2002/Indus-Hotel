@@ -3,26 +3,28 @@
 import { FocusContext, useFocusable } from "@noriginmedia/norigin-spatial-navigation";
 import type { PanelId, Room } from "@/lib/types";
 import { FocusableButton } from "@/components/ui/FocusableButton";
+import { PhoneIcon } from "@/components/ui/Icons";
 
-export const MENU: { id: PanelId; label: string }[] = [
-  { id: "tv", label: "TV" },
-  { id: "roomService", label: "Room Service" },
-  { id: "housekeeping", label: "Housekeeping" },
-  { id: "dining", label: "Dining" },
-  { id: "spa", label: "Spa" },
-  { id: "frontDesk", label: "Front Desk" },
-  { id: "billing", label: "Billing" },
-];
+export interface MenuItem {
+  id: PanelId;
+  label: string;
+}
 
 export const footerKey = (id: PanelId) => `footer-${id}`;
+export const CALL_RECEPTION_KEY = "footer-call-reception";
 
 interface FooterMenuProps {
+  items: MenuItem[];
   room: Room;
   active: PanelId | null;
   onOpen: (id: PanelId) => void;
+  onCallReception: () => void;
 }
 
-export function FooterMenu({ room, active, onOpen }: FooterMenuProps) {
+const itemClass =
+  "rounded-xl px-5 py-5 text-label font-medium tracking-[0.18em] whitespace-nowrap text-white/90 uppercase data-[tv-focus=true]:bg-brand data-[tv-focus=true]:text-white";
+
+export function FooterMenu({ items, room, active, onOpen, onCallReception }: FooterMenuProps) {
   const { ref, focusKey } = useFocusable({ focusKey: "footer", saveLastFocusedChild: true, trackChildren: true });
 
   return (
@@ -30,13 +32,13 @@ export function FooterMenu({ room, active, onOpen }: FooterMenuProps) {
       <div className="flex items-center justify-between gap-8">
         <FocusContext.Provider value={focusKey}>
           <nav ref={ref} className="flex items-center gap-1">
-            {MENU.map((item) => (
+            {items.map((item) => (
               <FocusableButton
                 key={item.id}
                 focusKey={footerKey(item.id)}
                 onPress={() => onOpen(item.id)}
                 label={item.label}
-                className="rounded-xl px-5 py-5 text-label font-medium tracking-[0.18em] whitespace-nowrap text-white/90 uppercase data-[tv-focus=true]:bg-brand data-[tv-focus=true]:text-white"
+                className={itemClass}
               >
                 {item.label}
                 <span
@@ -46,10 +48,20 @@ export function FooterMenu({ room, active, onOpen }: FooterMenuProps) {
                 />
               </FocusableButton>
             ))}
+            <span className="mx-2 h-10 w-px bg-white/15" aria-hidden />
+            <FocusableButton
+              focusKey={CALL_RECEPTION_KEY}
+              onPress={onCallReception}
+              label="Call Reception"
+              className={`${itemClass} flex items-center gap-3 border-2 border-brand/70`}
+            >
+              <PhoneIcon className="size-7" />
+              Reception
+            </FocusableButton>
           </nav>
         </FocusContext.Provider>
 
-        <dl className="flex shrink-0 gap-10">
+        <dl className="flex shrink-0 gap-8">
           <div>
             <dt className="text-[1rem] tracking-[0.3em] text-muted uppercase">Wi-Fi</dt>
             <dd className="mt-1 font-display text-[2rem] leading-none font-medium">{room.wifi.ssid}</dd>

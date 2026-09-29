@@ -122,6 +122,15 @@ reference/   (design references only, not served)
 - No console errors, `npm run build` passes, `npm run lint` passes.
 - A short `README.md` explains how to run it and the keyboard mapping.
 
+## Client feedback — 29 Sep 2026 (overrides the scope above)
+
+From the client's voice note, after they tried the first build:
+
+- Footer tabs are now **TV · Room Service · Housekeeping · Dining · Beauty Parlor**. **Front Desk** and **Billing** were removed, and **Spa** was renamed **Beauty Parlor**.
+- **No menus or prices.** Each tab only shows its services, with **photos** of that service. Use the latest photos from the hotel website or Facebook.
+- **Do not use the old lobby photo** (`bg-lobby.png`). The lobby was renovated with new sofas, carpet and decoration. A photo of the new lobby is still to come.
+- Keep the **Call** option. The client will send the real phone numbers.
+
 ## Later phases (for context only — don't build now)
 
 - Laravel + MySQL backend, real-time updates to each TV (Reverb/WebSocket).

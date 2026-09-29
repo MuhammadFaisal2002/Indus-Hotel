@@ -62,19 +62,6 @@ export function PanelScroll({ children, className = "" }: { children: ReactNode;
   );
 }
 
-/** Price/action pill that lights up when its card is focused. */
-export function ActionPill({ label, focused }: { label: string; focused: boolean }) {
-  return (
-    <span
-      className={`shrink-0 rounded-full px-7 py-3 text-label font-semibold tracking-[0.2em] uppercase transition-colors ${
-        focused ? "bg-white text-brand" : "border border-white/25 text-white/80"
-      }`}
-    >
-      {label}
-    </span>
-  );
-}
-
 /** Shared card look for panel items. */
 export const cardClass =
   "rounded-2xl border border-white/10 bg-white/[0.04] px-9 py-7 data-[tv-focus=true]:bg-brand data-[tv-focus=true]:border-transparent";
