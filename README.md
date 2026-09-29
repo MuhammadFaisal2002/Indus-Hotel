@@ -52,7 +52,7 @@ src/
     types.ts                 data contracts
   mock/                      room, guest, services, bill, promoVideos, config
 public/brand/logo-dark.png   transparent version of logo.png for dark backgrounds
-public/media/promo-welcome.mp4  generated placeholder (hotel photos + soft music)
+public/media/promo-indus.mp4    hotel promo video (14 s, loops)
 reference/                   design references (not served)
 ```
 
