@@ -1,26 +1,153 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* Brand tokens (Tailwind v4 reads theme tokens from CSS, there is no tailwind.config). */
+@theme {
+  --color-brand: #e0202e;
+  --color-brand-deep: #a3121d;
+  --color-ink: #0b0b0d;
+  --color-charcoal: #16161a;
+  --color-dolphin: #8a8d93;
+  --color-gold: #f5b301;
+  --color-muted: #b8bac0;
+
+  --font-display: var(--font-cormorant), "Georgia", serif;
+  --font-sans: var(--font-montserrat), "Helvetica Neue", Arial, sans-serif;
+
+  /* Sizes are rem, and 1rem = 16px at 1920×1080 (see html below), so 1.75rem = 28px. */
+  --text-label: 1.375rem;
+  --text-body: 1.75rem;
+  --text-lead: 2.125rem;
+  --text-title: 3rem;
+  --text-hero: 4.5rem;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/*
+ * Design at 1920×1080 and scale everything with the viewport:
+ * 1rem = 16px at 1080p, 10.67px at 720p. The smaller of width/height wins so
+ * nothing overflows on odd aspect ratios.
+ */
+html {
+  font-size: min(calc(100vw / 120), calc(100vh / 67.5));
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html,
+body {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--color-ink);
+  color: #fff;
+  cursor: none;
+  user-select: none;
+  -webkit-font-smoothing: antialiased;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+}
+
+/* Cormorant defaults to old-style figures; prices and times read better lining. */
+.font-display {
+  font-feature-settings: "lnum" 1;
+}
+
+/* TV overscan: keep content ~5% in from every edge. */
+.safe-area {
+  padding: 5vh 5vw;
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* ---------- Focus: must read from 3 metres away ---------- */
+
+.tv-focusable {
+  position: relative;
+  transition:
+    transform 160ms ease-out,
+    background-color 160ms ease-out,
+    color 160ms ease-out;
+  will-change: transform;
+}
+
+/* The glow lives on a pseudo-element so only its opacity animates (cheap on TV chipsets). */
+.tv-focusable::after {
+  content: "";
+  position: absolute;
+  inset: -0.25rem;
+  border-radius: inherit;
+  border: 0.1875rem solid #fff;
+  box-shadow:
+    0 0 2.5rem 0.375rem rgb(224 32 46 / 0.7),
+    inset 0 0 1rem rgb(224 32 46 / 0.35);
+  opacity: 0;
+  transition: opacity 160ms ease-out;
+  pointer-events: none;
+}
+
+.tv-focusable[data-tv-focus="true"] {
+  transform: scale(1.08);
+  z-index: 10;
+}
+.tv-focusable[data-tv-focus="true"]::after {
+  opacity: 1;
+}
+
+/* Wide rows would overflow at 1.08, so they grow less but keep the same glow. */
+.tv-focusable.tv-wide[data-tv-focus="true"] {
+  transform: scale(1.025);
+}
+
+/* ---------- Motion ---------- */
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(2.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes countdown {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes slow-zoom {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.08);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 600ms ease-out both;
+}
+.animate-rise-in {
+  animation: rise-in 700ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.animate-slow-zoom {
+  animation: slow-zoom 40s ease-out both;
 }
